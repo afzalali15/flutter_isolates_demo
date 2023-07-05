@@ -32,8 +32,15 @@ class HomePage extends StatelessWidget {
                 },
                 child: const Text('Task 2'),
               ),
+              //Isolate with parameters
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () async {
+                  final receivePort = ReceivePort();
+                  await Isolate.spawn(complexTask3, (iteration: 1000000000, sendPort: receivePort.sendPort));
+                  receivePort.listen((total) {
+                    debugPrint('Result 3: $total');
+                  });
+                },
                 child: const Text('Task 3'),
               ),
             ],
@@ -59,4 +66,12 @@ complexTask2(SendPort sendPort) {
     total += i;
   }
   sendPort.send(total);
+}
+
+complexTask3(({int iteration, SendPort sendPort}) data) {
+  var total = 0.0;
+  for (var i = 0; i < data.iteration; i++) {
+    total += i;
+  }
+  data.sendPort.send(total);
 }
